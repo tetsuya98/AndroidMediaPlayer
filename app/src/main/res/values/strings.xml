@@ -1,3 +1,30 @@
 <resources>
-    <string name="app_name">MediaPlayer</string>
+    <string name="app_name">MediaPlayer2</string>
+    <string-array name="music">
+        <item>eden</item>
+        <item>BarefootMcCoy</item>
+        <item>DeathGrips</item>
+        <item>Dereklegg</item>
+        <item>GregCartwright</item>
+        <item>KerenAnn01</item>
+        <item>KerenAnn02</item>
+        <item>KerenAnn03</item>
+        <item>MariaPien</item>
+        <item>Marrach</item>
+        <item>TheAgrarians</item>
+    </string-array>
+
+    <string-array name="download">
+        <item>eden</item>
+        <item>https://home.mis.u-picardie.fr/~ionica/musique/BarefootMcCoy.mp3</item>
+        <item>https://home.mis.u-picardie.fr/~ionica/musique/DeathGrips.mp3</item>
+        <item>https://home.mis.u-picardie.fr/~ionica/musique/DerekClegg.mp3</item>
+        <item>https://home.mis.u-picardie.fr/~ionica/musique/GregCartwright.mp3</item>
+        <item>https://home.mis.u-picardie.fr/~ionica/musique/KerenAnn01.mp3</item>
+        <item>https://home.mis.u-picardie.fr/~ionica/musique/KerenAnn02.mp3</item>
+        <item>https://home.mis.u-picardie.fr/~ionica/musique/KerenAnn03.mp3</item>
+        <item>https://home.mis.u-picardie.fr/~ionica/musique/MariaPien.mp3</item>
+        <item>https://home.mis.u-picardie.fr/~ionica/musique/Marrach.mp3</item>
+        <item>https://home.mis.u-picardie.fr/~ionica/musique/TheAgrarians.mp3</item>
+    </string-array>
 </resources>
