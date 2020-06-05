@@ -1,4 +1,4 @@
 package com.josselin.mediaplayer;
 
-public class Song {
+public class listAdapter {
 }
