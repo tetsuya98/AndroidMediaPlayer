@@ -81,4 +81,8 @@ public class listAdapter extends ArrayAdapter<String> {
         Button play;
         Button download;
     }
+
+    public void diableButton() {
+
+    }
 }

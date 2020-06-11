@@ -5,9 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
@@ -21,13 +18,11 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
     MediaPlayer player;
     String playing = "";
     public static final int MY_PERMISSION = 1;
-    //String img_url = "https://home.mis.u-picardie.fr/~ionica/musique/DeathGrips.mp3";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +82,14 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
                     e.printStackTrace();
                     Toast.makeText(this, "Cannot create folder !", Toast.LENGTH_SHORT).show();
                 }
-                new DownloadTask().execute(url);
+                File check = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+
+                        "/MediaPlayer/" + value + ".mp3");
+                if (!check.exists()) {
+                    new DownloadTask().execute(url);
+                }else{
+                    Toast.makeText(this, "File already exist !", Toast.LENGTH_SHORT).show();
+                }
+
         }
 
     }
@@ -146,6 +147,11 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
         }
     }
 
+    //Button
+
+    public void disableButton(int position) {
+
+    }
     //Toolbar
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
@@ -167,36 +173,12 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
     //Download
     class DownloadTask extends AsyncTask<String,Integer,String>
     {
-        ProgressDialog progressDialog;
         String name;
         double file_size;
 
         @Override
         protected void onPreExecute() {
-            //super.onPreExecute();
-            /*progressDialog = new ProgressDialog(MainActivity.this);
-            progressDialog.setTitle("Downloading...");
-            progressDialog.setMessage("File size: 0 MB");
-            progressDialog.setIndeterminate(true);
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progressDialog.setCancelable(true);
-
-            progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    Toast.makeText(getApplicationContext(), "Download cancelled !", Toast.LENGTH_SHORT).show();
-
-                    File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+
-                            "/MediaPlayer/" + name);
-                    try {
-                        dir.delete();
-                    }catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            });
-            progressDialog.show();*/
+            super.onPreExecute();
         }
 
         @Override
@@ -268,39 +250,8 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
                     }
                 }
             }finally {
-
             }
 
-            /*int total=0; int count=0;
-            String path = params[0];
-            int file_length = 0;
-            try {
-                URL url = new URL(path);
-                URLConnection uc = url.openConnection();
-                uc.connect();
-                file_length = uc.getContentLength();
-                File folder = new File("sdcard/mediaplayer");
-                if (!folder.exists()) {
-                    folder.mkdir();
-                }
-                System.out.println("-------------------------------------------"+params[0]);
-
-                File input_file = new File(folder,"image.mp3");
-                InputStream is = new BufferedInputStream(url.openStream(), 8192);
-                byte[] data = new byte[1024];
-                OutputStream os = new FileOutputStream(input_file);
-                while((count=is.read(data))!=-1){
-                    total += count;
-                    os.write(data, 0, count);
-                    //int progress = (int)total + 100 / file_length;
-                    //publishProgress(progress);
-                }
-                is.close(); os.close();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
             return null;
         }
 
@@ -315,8 +266,7 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
 
         @Override
         protected void onPostExecute(String res) {
-            //super.onPostExecute(aVoid);
-           // progressDialog.dismiss();
+            super.onPostExecute(res);
             if (res != null) {
                 Toast.makeText(getApplicationContext(), "Error: "+res, Toast.LENGTH_SHORT).show();
             }else{
