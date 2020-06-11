@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,9 +39,9 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
     ArrayList<String> dataItems = new ArrayList<String>();
     ArrayList<String> urlItems = new ArrayList<String>();
     MediaPlayer player;
+    String playing = "";
     public static final int MY_PERMISSION = 1;
-    String img_url = "https://home.mis.u-picardie.fr/~ionica/musique/DeathGrips.mp3";
-    //String img_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Adler.jpg/547px-Adler.jpg";
+    //String img_url = "https://home.mis.u-picardie.fr/~ionica/musique/DeathGrips.mp3";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
                     e.printStackTrace();
                     Toast.makeText(this, "Cannot create folder !", Toast.LENGTH_SHORT).show();
                 }
-                new DownloadTask().execute(img_url);
+                new DownloadTask().execute(url);
         }
 
     }
@@ -109,17 +110,26 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
     public void playPlayer(String id) {
         try{
             if (player == null) {
-                int resID = getResources().getIdentifier(id, "raw", getPackageName());
-                player = MediaPlayer.create(this, resID);
+                player = new MediaPlayer();
+                player.setDataSource(Environment.getExternalStorageDirectory().getAbsolutePath()+
+                        "/MediaPlayer/" + id + ".mp3");
+                player.prepare();
                 player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
                         stopPlayer();
                     }
                 });
+                playing = id;
+            }else{
+                if (id != playing) {
+                    stopPlayer();
+                    playPlayer(id);
+                }
             }
             player.start();
         }catch (Exception e){
+            e.printStackTrace();
             Toast.makeText(this, "A Telecharger", Toast.LENGTH_SHORT).show();
         }
 
@@ -164,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
         @Override
         protected void onPreExecute() {
             //super.onPreExecute();
-            progressDialog = new ProgressDialog(MainActivity.this);
+            /*progressDialog = new ProgressDialog(MainActivity.this);
             progressDialog.setTitle("Downloading...");
             progressDialog.setMessage("File size: 0 MB");
             progressDialog.setIndeterminate(true);
@@ -186,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
 
                 }
             });
-            progressDialog.show();
+            progressDialog.show();*/
         }
 
         @Override
@@ -297,16 +307,16 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
         @Override
         protected void onProgressUpdate(Integer... values) {
             //super.onProgressUpdate(values);
-            progressDialog.setIndeterminate(false);
+            /*progressDialog.setIndeterminate(false);
             progressDialog.setMax(100);
             progressDialog.setProgress(values[0]);
-            progressDialog.setMessage("File size : " + new DecimalFormat("##.##").format(file_size / 1000000) + "MB");
+            progressDialog.setMessage("File size : " + new DecimalFormat("##.##").format(file_size / 1000000) + "MB");*/
         }
 
         @Override
         protected void onPostExecute(String res) {
             //super.onPostExecute(aVoid);
-            progressDialog.dismiss();
+           // progressDialog.dismiss();
             if (res != null) {
                 Toast.makeText(getApplicationContext(), "Error: "+res, Toast.LENGTH_SHORT).show();
             }else{

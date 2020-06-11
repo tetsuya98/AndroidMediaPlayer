@@ -1,10 +1,9 @@
 <resources>
     <string name="app_name">MediaPlayer2</string>
     <string-array name="music">
-        <item>eden</item>
         <item>BarefootMcCoy</item>
         <item>DeathGrips</item>
-        <item>Dereklegg</item>
+        <item>DerekClegg</item>
         <item>GregCartwright</item>
         <item>KerenAnn01</item>
         <item>KerenAnn02</item>
@@ -15,7 +14,6 @@
     </string-array>
 
     <string-array name="download">
-        <item>eden</item>
         <item>https://home.mis.u-picardie.fr/~ionica/musique/BarefootMcCoy.mp3</item>
         <item>https://home.mis.u-picardie.fr/~ionica/musique/DeathGrips.mp3</item>
         <item>https://home.mis.u-picardie.fr/~ionica/musique/DerekClegg.mp3</item>
