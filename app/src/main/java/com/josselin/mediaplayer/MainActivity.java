@@ -206,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
                     file_size = intputLength;
 
                     is = connection.getInputStream();
-                    System.out.println("-------" + name);
                     File song = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+
                             "/MediaPlayer/" + name);
                     try {
