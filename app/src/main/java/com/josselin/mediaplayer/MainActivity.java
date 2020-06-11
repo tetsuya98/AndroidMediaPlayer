@@ -14,11 +14,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import java.io.File;
@@ -42,12 +45,14 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
     String playing = "";
     Handler handler;
     Runnable runnable;
+    Button pause, forward, rewind;
     public static final int MY_PERMISSION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        handler = new Handler();
 
         //Permission
         ActivityCompat.requestPermissions(MainActivity.this,
@@ -58,17 +63,30 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
                 },
                 100);
 
-        String[] dataArray = getResources().getStringArray(R.array.music);
-        String[] urlArray = getResources().getStringArray(R.array.download);
-        List<String> dataTemp = Arrays.asList(dataArray);
-        List<String> urlTemp = Arrays.asList(urlArray);
-        dataItems.addAll(dataTemp);
-        urlItems.addAll(urlTemp);
-        listView = findViewById(R.id.listView);
+        //Activity Main
+        pause = findViewById(R.id.pauseM);
+        pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pausePlayer();
+            }
+        });
+        forward = findViewById(R.id.forward);
+        forward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                player.seekTo(player.getCurrentPosition()+5000);
+            }
+        });
+        rewind = findViewById(R.id.rewind);
+        rewind.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                player.seekTo(player.getCurrentPosition()-5000);
+            }
+        });
+
         seekbar = findViewById(R.id.seekbar);
-        adapter = new listAdapter(MainActivity.this, dataItems, urlItems);
-        ((listAdapter) adapter).setCustomButtonListener(MainActivity.this);
-        handler = new Handler();
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
@@ -87,8 +105,20 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
 
             }
         });
-        listView.setAdapter(adapter);
 
+        listView = findViewById(R.id.listView);
+
+        String[] dataArray = getResources().getStringArray(R.array.music);
+        List<String> dataTemp = Arrays.asList(dataArray);
+        dataItems.addAll(dataTemp);
+
+        String[] urlArray = getResources().getStringArray(R.array.download);
+        List<String> urlTemp = Arrays.asList(urlArray);
+        urlItems.addAll(urlTemp);
+
+        adapter = new listAdapter(MainActivity.this, dataItems, urlItems);
+        ((listAdapter) adapter).setCustomButtonListener(MainActivity.this);
+        listView.setAdapter(adapter);
     }
 
     @Override
@@ -135,7 +165,6 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
     }
 
     //MediaPlayer
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -144,15 +173,19 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
             playCycle();
         }
     }
-
     @Override
     protected void onPause() {
         super.onPause();
         if (player != null) {
-            player.pause();
+            if (player.isPlaying()) {
+                player.pause();
+                pause.setBackground(this.getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
+            } else{
+                player.start();
+                pause.setBackground(this.getResources().getDrawable(R.drawable.ic_pause_black_24dp));
+            }
         }
     }
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -163,7 +196,6 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
             seekbar.setProgress(0);
         }
     }
-
     public void playPlayer(String id) {
         try{
             if (player == null) {
@@ -174,19 +206,20 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
                 player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
-                        stopPlayer();
+                        onStop();
                     }
                 });
                 playing = id;
                 seekbar.setMax(player.getDuration());
-                player.start();
-                playCycle();
+
             }else{
                 if (id != playing) {
-                    stopPlayer();
+                    onStop();
                     playPlayer(id);
                 }
             }
+            player.start();
+            playCycle();
         }catch (Exception e){
             e.printStackTrace();
             Toast.makeText(this, "A Telecharger", Toast.LENGTH_SHORT).show();
@@ -195,9 +228,6 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
     }
     public void pausePlayer() {
         onPause();
-    }
-    public void stopPlayer() {
-        onStop();
     }
     public void playCycle() {
         seekbar.setProgress(player.getCurrentPosition());
@@ -211,25 +241,6 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
             };
             handler.postDelayed(runnable, 1000);
         }
-    }
-
-
-    //Toolbar
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_pause:
-                pausePlayer();
-                return true;
-            case R.id.action_stop:
-                stopPlayer();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     //Download
