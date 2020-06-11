@@ -6,15 +6,19 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import java.io.File;
@@ -34,7 +38,10 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
     ArrayList<String> dataItems = new ArrayList<String>();
     ArrayList<String> urlItems = new ArrayList<String>();
     MediaPlayer player;
+    SeekBar seekbar;
     String playing = "";
+    Handler handler;
+    Runnable runnable;
     public static final int MY_PERMISSION = 1;
 
     @Override
@@ -58,8 +65,28 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
         dataItems.addAll(dataTemp);
         urlItems.addAll(urlTemp);
         listView = findViewById(R.id.listView);
+        seekbar = findViewById(R.id.seekbar);
         adapter = new listAdapter(MainActivity.this, dataItems, urlItems);
         ((listAdapter) adapter).setCustomButtonListener(MainActivity.this);
+        handler = new Handler();
+        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+                if (b) {
+                    player.seekTo(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         listView.setAdapter(adapter);
 
     }
@@ -108,6 +135,35 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
     }
 
     //MediaPlayer
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (player != null) {
+            player.start();
+            playCycle();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (player != null) {
+            player.pause();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (player != null) {
+            player.release();
+            player = null;
+            handler.removeCallbacks(runnable);
+            seekbar.setProgress(0);
+        }
+    }
+
     public void playPlayer(String id) {
         try{
             if (player == null) {
@@ -122,13 +178,15 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
                     }
                 });
                 playing = id;
+                seekbar.setMax(player.getDuration());
+                player.start();
+                playCycle();
             }else{
                 if (id != playing) {
                     stopPlayer();
                     playPlayer(id);
                 }
             }
-            player.start();
         }catch (Exception e){
             e.printStackTrace();
             Toast.makeText(this, "A Telecharger", Toast.LENGTH_SHORT).show();
@@ -136,22 +194,26 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
 
     }
     public void pausePlayer() {
-        if (player != null) {
-            player.pause();
-        }
+        onPause();
     }
     public void stopPlayer() {
-        if (player != null) {
-            player.release();
-            player = null;
+        onStop();
+    }
+    public void playCycle() {
+        seekbar.setProgress(player.getCurrentPosition());
+
+        if (player.isPlaying()) {
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    playCycle();
+                }
+            };
+            handler.postDelayed(runnable, 1000);
         }
     }
 
-    //Button
 
-    public void disableButton(int position) {
-
-    }
     //Toolbar
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);

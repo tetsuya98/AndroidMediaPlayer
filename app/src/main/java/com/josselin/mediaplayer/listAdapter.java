@@ -82,7 +82,4 @@ public class listAdapter extends ArrayAdapter<String> {
         Button download;
     }
 
-    public void diableButton() {
-
-    }
 }
