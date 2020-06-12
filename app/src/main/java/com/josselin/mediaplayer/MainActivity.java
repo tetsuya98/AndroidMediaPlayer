@@ -14,12 +14,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.Layout;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
     ArrayList<String> dataItems = new ArrayList<String>();
     ArrayList<String> urlItems = new ArrayList<String>();
     MediaPlayer player;
+    Layout ly;
     SeekBar seekbar;
     String playing = "";
     Handler handler;
@@ -87,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
         });
 
         seekbar = findViewById(R.id.seekbar);
+        seekbar.setEnabled(false);
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
@@ -202,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
                 player = new MediaPlayer();
                 player.setDataSource(Environment.getExternalStorageDirectory().getAbsolutePath()+
                         "/MediaPlayer/" + id + ".mp3");
-                player.prepare();
+                //player.prepare();
                 player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
@@ -210,16 +214,24 @@ public class MainActivity extends AppCompatActivity implements listAdapter.custo
                     }
                 });
                 playing = id;
-                seekbar.setMax(player.getDuration());
-
+                player.prepareAsync();
             }else{
                 if (id != playing) {
                     onStop();
                     playPlayer(id);
                 }
             }
-            player.start();
-            playCycle();
+            player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer player) {
+                    seekbar.setEnabled(true);
+                    seekbar.setMax(player.getDuration());
+                    player.start();
+                    playCycle();
+                }
+
+            });
+
         }catch (Exception e){
             e.printStackTrace();
             Toast.makeText(this, "A Telecharger", Toast.LENGTH_SHORT).show();
